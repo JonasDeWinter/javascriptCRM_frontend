@@ -4,8 +4,11 @@ import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import useModalContext from '../../hooks/useModalContext';
 import { useAppDispatch } from '../../hooks/reduxHooks';
+import { useCompanyData } from '../../hooks/useCompanyData';
+import { useContactData } from '../../hooks/useContactData';
 import { updateContact } from '../../store/contact/contactSlice';
-import { Company, Contact, ContactStatus, CrmPage } from '../../types/crm';
+import { Contact, ContactStatus } from '../../types/contact';
+import { CrmPage } from '../../types/crm';
 
 type EditableContact = Pick<Contact, 'name' | 'email' | 'companyId' | 'title' | 'status' | 'owner' | 'lastContacted'>;
 
@@ -21,16 +24,13 @@ function createContactDraft(contact?: Contact): EditableContact {
   };
 }
 
-interface ContactDetailsPageProps {
-  contacts: Contact[];
-  companies: Company[];
-}
-
-function ContactDetailsPage({ contacts, companies }: ContactDetailsPageProps) {
+function ContactDetailsPage() {
   const { contactId } = useParams<{ contactId: string }>();
   const navigate = useNavigate();
   const { setCurrentPage } = useModalContext();
   const dispatch = useAppDispatch();
+  const contacts = useContactData();
+  const companies = useCompanyData();
   const contact = contacts.find((item) => item.id === contactId);
   const [draft, setDraft] = useState<EditableContact>(() => createContactDraft(contact));
   const company = draft.companyId

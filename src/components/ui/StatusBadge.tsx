@@ -1,5 +1,6 @@
 import React from 'react';
-import { CompanyStatus, ContactStatus } from '../../types/crm';
+import { CompanyStatus } from '../../types/company';
+import { ContactStatus } from '../../types/contact';
 
 interface StatusBadgeProps {
   status: ContactStatus | CompanyStatus;

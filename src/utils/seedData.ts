@@ -1,4 +1,5 @@
-import { Company, CompanyStatus, Contact, ContactStatus } from '../types/crm';
+import { Company, CompanyStatus } from '../types/company';
+import { Contact, ContactStatus } from '../types/contact';
 
 export const initialContacts: Contact[] = [
   {

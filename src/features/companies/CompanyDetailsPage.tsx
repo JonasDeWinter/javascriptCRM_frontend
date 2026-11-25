@@ -3,18 +3,18 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import StatusBadge from '../../components/ui/StatusBadge';
+import { useCompanyData } from '../../hooks/useCompanyData';
+import { useContactData } from '../../hooks/useContactData';
 import useModalContext from '../../hooks/useModalContext';
-import { Company, Contact, CrmPage } from '../../types/crm';
+import { CrmPage } from '../../types/crm';
 
-interface CompanyDetailsPageProps {
-  companies: Company[];
-  contacts: Contact[];
-}
-
-function CompanyDetailsPage({ companies, contacts }: CompanyDetailsPageProps) {
+function CompanyDetailsPage() {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
   const { setCurrentPage } = useModalContext();
+  const contacts = useContactData();
+  const companies = useCompanyData();
+
   const company = companies.find((item) => item.id === companyId);
   const associatedContacts = contacts.filter((contact) => contact.companyId === companyId);
 

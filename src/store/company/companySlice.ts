@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Company } from '../../types/crm';
+import { Company } from '../../types/company';
 import { initialCompanies } from '../../utils/seedData';
 
 export interface CompanyUpdate {

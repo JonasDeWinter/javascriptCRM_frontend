@@ -10,7 +10,9 @@ import CompanyDetailsPage from './features/companies/CompanyDetailsPage';
 import ContactsPage from './features/contacts/ContactsPage';
 import ContactDetailsPage from './features/contacts/ContactDetailsPage';
 import { CrmPage } from './types/crm';
-import { useAppDispatch, useAppSelector } from './hooks/reduxHooks';
+import { useAppDispatch } from './hooks/reduxHooks';
+import { useCompanyData } from './hooks/useCompanyData';
+import { useContactData } from './hooks/useContactData';
 import useModalContext from './hooks/useModalContext';
 import './styles/App.css';
 
@@ -20,8 +22,8 @@ function CrmApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const contacts = useAppSelector((state) => state.contacts);
-  const companies = useAppSelector((state) => state.companies);
+  const contacts = useContactData();
+  const companies = useCompanyData();
   const page = location.pathname.startsWith(`/${CrmPage.Companies}`)
     ? CrmPage.Companies
     : CrmPage.Contacts;
@@ -46,8 +48,6 @@ function CrmApp() {
           path={`/${CrmPage.Contacts}`}
           element={
             <ContactsPage
-              contacts={contacts}
-              companies={companies}
               search={search}
               onDeleteSelected={(ids) => dispatch(deleteContacts(ids))}
             />
@@ -55,14 +55,12 @@ function CrmApp() {
         />
         <Route
           path={`/${CrmPage.Contacts}/:contactId`}
-          element={<ContactDetailsPage contacts={contacts} companies={companies} />}
+          element={<ContactDetailsPage />}
         />
         <Route
           path={`/${CrmPage.Companies}`}
           element={
             <CompaniesPage
-              companies={companies}
-              contacts={contacts}
               search={search}
               onDeleteSelected={(ids) => dispatch(deleteCompanies(ids))}
             />
@@ -70,14 +68,12 @@ function CrmApp() {
         />
         <Route
           path={`/${CrmPage.Companies}/:companyId`}
-          element={<CompanyDetailsPage companies={companies} contacts={contacts} />}
+          element={<CompanyDetailsPage />}
         />
         <Route path="*" element={<Navigate to={`/${CrmPage.Contacts}`} replace />} />
       </Routes>
       {isModalOpen && (
-        <RecordModal
-          companies={companies}
-        />
+        <RecordModal />
       )}
     </AppLayout>
   );

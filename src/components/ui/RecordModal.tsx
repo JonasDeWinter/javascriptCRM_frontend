@@ -1,18 +1,18 @@
 import React, { FormEvent, useState } from 'react';
 import useModalContext from '../../hooks/useModalContext';
 import { useAppDispatch } from '../../hooks/reduxHooks';
+import { useCompanyData } from '../../hooks/useCompanyData';
 import { addCompany } from '../../store/company/companySlice';
 import { addContact } from '../../store/contact/contactSlice';
-import { Company, CompanyStatus, ContactStatus, CrmPage } from '../../types/crm';
+import { CompanyStatus } from '../../types/company';
+import { ContactStatus } from '../../types/contact';
+import { CrmPage } from '../../types/crm';
 import Icon from './Icon';
 
-interface RecordModalProps {
-  companies: Company[];
-}
-
-function RecordModal({ companies }: RecordModalProps) {
+function RecordModal() {
   const { currentPage, closeModal } = useModalContext();
   const dispatch = useAppDispatch();
+  const companies = useCompanyData();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [companyId, setCompanyId] = useState('');

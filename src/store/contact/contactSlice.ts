@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Contact } from '../../types/crm';
+import { Contact } from '../../types/contact';
 import { initialContacts } from '../../utils/seedData';
 import { deleteCompanies } from '../company/companySlice';
 

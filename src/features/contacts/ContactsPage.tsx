@@ -6,19 +6,22 @@ import CrmTableRow from '../../components/ui/CrmTableRow';
 import Icon from '../../components/ui/Icon';
 import MetricCard from '../../components/ui/MetricCard';
 import StatusBadge from '../../components/ui/StatusBadge';
+import { useCompanyData } from '../../hooks/useCompanyData';
+import { useContactData } from '../../hooks/useContactData';
 import useModalContext from '../../hooks/useModalContext';
-import { Company, Contact, ContactStatus, CrmPage } from '../../types/crm';
+import { ContactStatus } from '../../types/contact';
+import { CrmPage } from '../../types/crm';
 
 interface ContactsPageProps {
-  contacts: Contact[];
-  companies: Company[];
   search: string;
   onDeleteSelected: (ids: string[]) => void;
 }
 
-function ContactsPage({ contacts, companies, search, onDeleteSelected }: ContactsPageProps) {
+function ContactsPage({ search, onDeleteSelected }: ContactsPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
   const navigate = useNavigate();
+  const contacts = useContactData();
+  const companies = useCompanyData();
   const [statusFilter, setStatusFilter] = useState('All contacts');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const companyById = useMemo(

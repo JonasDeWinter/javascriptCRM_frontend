@@ -7,22 +7,21 @@ import Icon from '../../components/ui/Icon';
 import MetricCard from '../../components/ui/MetricCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import useModalContext from '../../hooks/useModalContext';
-import { Company, CompanyStatus, Contact, CrmPage } from '../../types/crm';
-import { useAppSelector } from '../../hooks/reduxHooks';
+import { useCompanyData } from '../../hooks/useCompanyData';
+import { useContactData } from '../../hooks/useContactData';
+import { CompanyStatus } from '../../types/company';
+import { CrmPage } from '../../types/crm';
 
 interface CompaniesPageProps {
-  contacts: Contact[];
   search: string;
   onDeleteSelected: (ids: string[]) => void;
 }
 
-function CompaniesPage({search, onDeleteSelected }: CompaniesPageProps) {
+function CompaniesPage({ search, onDeleteSelected }: CompaniesPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
   const navigate = useNavigate();
-
-  const contacts = useAppSelector((state) => state.contacts);
-  const companies = useAppSelector((state) => state.companies);
-
+  const companies = useCompanyData();
+  const contacts = useContactData();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   useEffect(() => {
@@ -125,3 +124,4 @@ function CompaniesPage({search, onDeleteSelected }: CompaniesPageProps) {
 }
 
 export default CompaniesPage;
+
