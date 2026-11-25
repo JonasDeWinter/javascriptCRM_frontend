@@ -6,3 +6,7 @@ export const useCompanyData: () => Company[] = () => {
     (state) => state.companies.companies
   );
 }
+
+export const useSelectedCompanyId = () => {
+  return useAppSelector((state) => state.companies.selectedCompanyId);
+};

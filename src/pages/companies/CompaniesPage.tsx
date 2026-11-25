@@ -23,6 +23,7 @@ function CompaniesPage({ search, onDeleteSelected }: CompaniesPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  
   const companies = useCompanyData();
   const contacts = useContactData();
 

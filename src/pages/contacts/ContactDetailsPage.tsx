@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import useModalContext from '../../hooks/useModalContext';
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { useAppDispatch } from '../../hooks/reduxHooks';
 import { useCompanyData } from '../../hooks/CompanyHooks';
-import { useContactData } from '../../hooks/ContactHooks';
+import { useContactData, useSelectedContactId } from '../../hooks/ContactHooks';
 import { setSelectedContactId, updateContact } from '../../store/contact/contactSlice';
 import { Contact, ContactStatus } from '../../types/contact';
 import { CrmPage } from '../../types/crm';
@@ -31,7 +31,7 @@ function ContactDetailsPage() {
   const dispatch = useAppDispatch();
   const contacts = useContactData();
   const companies = useCompanyData();
-  const selectedContactId = useAppSelector((state) => state.contacts.selectedContactId);
+  const selectedContactId = useSelectedContactId();
   const contact = contacts.find((item) => item.id === selectedContactId);
   const [draft, setDraft] = useState<EditableContact>(() => createContactDraft(contact));
   const company = draft.companyId

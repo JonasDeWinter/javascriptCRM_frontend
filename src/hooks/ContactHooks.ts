@@ -7,3 +7,7 @@ export const useContactData: () => Contact[] = () => {
   );
 }
 
+export const useSelectedContactId = () => {
+  return useAppSelector((state) => state.contacts.selectedContactId);
+};
+

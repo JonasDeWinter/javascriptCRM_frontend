@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
-import { useCompanyData } from '../../hooks/CompanyHooks';
+import { useAppDispatch } from '../../hooks/reduxHooks';
+import { useCompanyData, useSelectedCompanyId } from '../../hooks/CompanyHooks';
 import { useContactData } from '../../hooks/ContactHooks';
 import useModalContext from '../../hooks/useModalContext';
 import { setSelectedContactId } from '../../store/contact/contactSlice';
@@ -18,7 +18,7 @@ function CompanyDetailsPage() {
   const { setCurrentPage } = useModalContext();
   const contacts = useContactData();
   const companies = useCompanyData();
-  const selectedCompanyId = useAppSelector((state) => state.companies.selectedCompanyId);
+  const selectedCompanyId = useSelectedCompanyId();
 
   const company = companies.find((item) => item.id === selectedCompanyId);
   const associatedContacts = contacts.filter((contact) => contact.companyId === selectedCompanyId);
