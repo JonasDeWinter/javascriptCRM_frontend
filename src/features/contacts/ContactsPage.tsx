@@ -7,7 +7,7 @@ import Icon from '../../components/ui/Icon';
 import MetricCard from '../../components/ui/MetricCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import useModalContext from '../../hooks/useModalContext';
-import { Company, Contact } from '../../types/crm';
+import { Company, Contact, ContactStatus, CrmPage } from '../../types/crm';
 
 interface ContactsPageProps {
   contacts: Contact[];
@@ -26,7 +26,7 @@ function ContactsPage({ contacts, companies, search, onDeleteSelected }: Contact
     [companies]
   );
   useEffect(() => {
-    setCurrentPage('contacts');
+    setCurrentPage(CrmPage.Contacts);
   }, [setCurrentPage]);
   const filteredContacts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -42,9 +42,9 @@ function ContactsPage({ contacts, companies, search, onDeleteSelected }: Contact
       return matchesSearch && matchesStatus;
     });
   }, [companyById, contacts, search, statusFilter]);
-  const customers = contacts.filter((contact) => contact.status === 'Customer').length;
-  const leads = contacts.filter((contact) => contact.status === 'Lead').length;
-  const prospects = contacts.filter((contact) => contact.status === 'Prospect').length;
+  const customers = contacts.filter((contact) => contact.status === ContactStatus.Customer).length;
+  const leads = contacts.filter((contact) => contact.status === ContactStatus.Lead).length;
+  const prospects = contacts.filter((contact) => contact.status === ContactStatus.Prospect).length;
 
   return (
     <>

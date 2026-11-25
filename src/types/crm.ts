@@ -1,8 +1,18 @@
-export type CrmPage = 'contacts' | 'companies';
+export enum CrmPage {
+  Contacts = 'contacts',
+  Companies = 'companies'
+}
 
-export type ContactStatus = 'Customer' | 'Lead' | 'Prospect';
+export enum ContactStatus {
+  Customer = 'Customer',
+  Lead = 'Lead',
+  Prospect = 'Prospect'
+}
 
-export type CompanyStatus = 'Customer' | 'Prospect';
+export enum CompanyStatus {
+  Customer = 'Customer',
+  Prospect = 'Prospect'
+}
 
 export interface Contact {
   id: string;

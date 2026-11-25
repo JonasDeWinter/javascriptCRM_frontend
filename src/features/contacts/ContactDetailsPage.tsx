@@ -5,7 +5,7 @@ import Icon from '../../components/ui/Icon';
 import useModalContext from '../../hooks/useModalContext';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { updateContact } from '../../store/contact/contactSlice';
-import { Company, Contact } from '../../types/crm';
+import { Company, Contact, ContactStatus, CrmPage } from '../../types/crm';
 
 type EditableContact = Pick<Contact, 'name' | 'email' | 'companyId' | 'title' | 'status' | 'owner' | 'lastContacted'>;
 
@@ -15,7 +15,7 @@ function createContactDraft(contact?: Contact): EditableContact {
     email: contact?.email ?? '',
     companyId: contact?.companyId ?? null,
     title: contact?.title ?? '',
-    status: contact?.status ?? 'Lead',
+    status: contact?.status ?? ContactStatus.Lead,
     owner: contact?.owner ?? '',
     lastContacted: contact?.lastContacted ?? '',
   };
@@ -38,7 +38,7 @@ function ContactDetailsPage({ contacts, companies }: ContactDetailsPageProps) {
     : undefined;
 
   useEffect(() => {
-    setCurrentPage('contacts');
+    setCurrentPage(CrmPage.Contacts);
   }, [setCurrentPage]);
 
   useEffect(() => {
@@ -101,14 +101,18 @@ function ContactDetailsPage({ contacts, companies }: ContactDetailsPageProps) {
             value={draft.status}
             onChange={(event) => {
               const status = event.target.value;
-              if (status === 'Customer' || status === 'Lead' || status === 'Prospect') {
+              if (
+                status === ContactStatus.Customer
+                || status === ContactStatus.Lead
+                || status === ContactStatus.Prospect
+              ) {
                 updateDraft({ status });
               }
             }}
           >
-            <option value="Customer">Customer</option>
-            <option value="Lead">Lead</option>
-            <option value="Prospect">Prospect</option>
+            <option value={ContactStatus.Customer}>{ContactStatus.Customer}</option>
+            <option value={ContactStatus.Lead}>{ContactStatus.Lead}</option>
+            <option value={ContactStatus.Prospect}>{ContactStatus.Prospect}</option>
           </select>
           {hasChanges && (
             <button className="button button--primary" type="submit">

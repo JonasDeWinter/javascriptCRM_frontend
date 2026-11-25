@@ -7,21 +7,26 @@ import Icon from '../../components/ui/Icon';
 import MetricCard from '../../components/ui/MetricCard';
 import StatusBadge from '../../components/ui/StatusBadge';
 import useModalContext from '../../hooks/useModalContext';
-import { Company, Contact } from '../../types/crm';
+import { Company, CompanyStatus, Contact, CrmPage } from '../../types/crm';
+import { useAppSelector } from '../../hooks/reduxHooks';
 
 interface CompaniesPageProps {
-  companies: Company[];
   contacts: Contact[];
   search: string;
   onDeleteSelected: (ids: string[]) => void;
 }
 
-function CompaniesPage({ companies, contacts, search, onDeleteSelected }: CompaniesPageProps) {
+function CompaniesPage({search, onDeleteSelected }: CompaniesPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
   const navigate = useNavigate();
+
+  const contacts = useAppSelector((state) => state.contacts);
+  const companies = useAppSelector((state) => state.companies);
+
+
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   useEffect(() => {
-    setCurrentPage('companies');
+    setCurrentPage(CrmPage.Companies);
   }, [setCurrentPage]);
   const filteredCompanies = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -32,8 +37,8 @@ function CompaniesPage({ companies, contacts, search, onDeleteSelected }: Compan
       company.status,
     ].some((value) => value.toLowerCase().includes(query)));
   }, [companies, search]);
-  const customers = companies.filter((company) => company.status === 'Customer').length;
-  const prospects = companies.filter((company) => company.status === 'Prospect').length;
+  const customers = companies.filter((company) => company.status === CompanyStatus.Customer).length;
+  const prospects = companies.filter((company) => company.status === CompanyStatus.Prospect).length;
   const companyContactCounts = useMemo(() => {
     const counts = new Map<string, number>();
     contacts.forEach((contact) => {

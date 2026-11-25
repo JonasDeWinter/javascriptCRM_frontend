@@ -3,7 +3,7 @@ import useModalContext from '../../hooks/useModalContext';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { addCompany } from '../../store/company/companySlice';
 import { addContact } from '../../store/contact/contactSlice';
-import { Company } from '../../types/crm';
+import { Company, CompanyStatus, ContactStatus, CrmPage } from '../../types/crm';
 import Icon from './Icon';
 
 interface RecordModalProps {
@@ -21,18 +21,18 @@ function RecordModal({ companies }: RecordModalProps) {
   const [employees, setEmployees] = useState('');
   const [location, setLocation] = useState('');
   const [annualRevenue, setAnnualRevenue] = useState('');
-  const isContact = currentPage === 'contacts';
+  const isContact = currentPage === CrmPage.Contacts;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (currentPage === 'contacts') {
+    if (currentPage === CrmPage.Contacts) {
       dispatch(addContact({
         id: `contact-${Date.now()}`,
         name,
         email,
         companyId: companyId || null,
         title,
-        status: 'Lead',
+        status: ContactStatus.Lead,
         owner: 'You',
         lastContacted: 'Just now',
       }));
@@ -44,7 +44,7 @@ function RecordModal({ companies }: RecordModalProps) {
         employees: employees || '—',
         location: location || '—',
         annualRevenue: annualRevenue || '—',
-        status: 'Prospect',
+        status: CompanyStatus.Prospect,
       }));
     }
     closeModal();

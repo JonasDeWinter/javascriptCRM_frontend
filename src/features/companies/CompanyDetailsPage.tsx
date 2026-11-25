@@ -4,7 +4,7 @@ import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import StatusBadge from '../../components/ui/StatusBadge';
 import useModalContext from '../../hooks/useModalContext';
-import { Company, Contact } from '../../types/crm';
+import { Company, Contact, CrmPage } from '../../types/crm';
 
 interface CompanyDetailsPageProps {
   companies: Company[];
@@ -19,7 +19,7 @@ function CompanyDetailsPage({ companies, contacts }: CompanyDetailsPageProps) {
   const associatedContacts = contacts.filter((contact) => contact.companyId === companyId);
 
   useEffect(() => {
-    setCurrentPage('companies');
+    setCurrentPage(CrmPage.Companies);
   }, [setCurrentPage]);
 
   if (!company) {

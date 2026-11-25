@@ -43,17 +43,17 @@ function AppLayout({
         <div className="sidebar__section-label">WORKSPACE</div>
         <nav className="main-nav" aria-label="Main navigation">
           <button
-            className={`nav-item ${activePage === 'contacts' ? 'nav-item--active' : ''}`}
-            aria-current={activePage === 'contacts' ? 'page' : undefined}
-            onClick={() => onNavigate('contacts')}
+            className={`nav-item ${activePage === CrmPage.Contacts ? 'nav-item--active' : ''}`}
+            aria-current={activePage === CrmPage.Contacts ? 'page' : undefined}
+            onClick={() => onNavigate(CrmPage.Contacts)}
             type="button"
           >
             <Icon name="users" size={19} /><span>Contacts</span><span className="nav-count">{contactCount}</span>
           </button>
           <button
-            className={`nav-item ${activePage === 'companies' ? 'nav-item--active' : ''}`}
-            aria-current={activePage === 'companies' ? 'page' : undefined}
-            onClick={() => onNavigate('companies')}
+            className={`nav-item ${activePage === CrmPage.Companies ? 'nav-item--active' : ''}`}
+            aria-current={activePage === CrmPage.Companies ? 'page' : undefined}
+            onClick={() => onNavigate(CrmPage.Companies)}
             type="button"
           >
             <Icon name="building" size={19} /><span>Companies</span><span className="nav-count">{companyCount}</span>

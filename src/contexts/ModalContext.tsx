@@ -17,7 +17,7 @@ interface ModalProviderProps {
 
 export function ModalProvider({ children }: ModalProviderProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState<CrmPage>('contacts');
+  const [currentPage, setCurrentPage] = useState<CrmPage>(CrmPage.Contacts);
 
   const value: ModalContextValue = {
     isModalOpen,

@@ -1,4 +1,4 @@
-import { Company, Contact } from '../types/crm';
+import { Company, CompanyStatus, Contact, ContactStatus } from '../types/crm';
 
 export const initialContacts: Contact[] = [
   {
@@ -7,7 +7,7 @@ export const initialContacts: Contact[] = [
     email: 'olivia@untitledui.com',
     companyId: 'company-1',
     title: 'Product Designer',
-    status: 'Customer',
+    status: ContactStatus.Customer,
     owner: 'Olivia Rhye',
     lastContacted: '2 hours ago',
   },
@@ -17,7 +17,7 @@ export const initialContacts: Contact[] = [
     email: 'phoenix@linear.app',
     companyId: 'company-2',
     title: 'Engineering Manager',
-    status: 'Lead',
+    status: ContactStatus.Lead,
     owner: 'Demi Wilkinson',
     lastContacted: 'Yesterday',
   },
@@ -27,7 +27,7 @@ export const initialContacts: Contact[] = [
     email: 'lana@layers.to',
     companyId: 'company-3',
     title: 'Marketing Coordinator',
-    status: 'Customer',
+    status: ContactStatus.Customer,
     owner: 'Candice Wu',
     lastContacted: 'Yesterday',
   },
@@ -37,7 +37,7 @@ export const initialContacts: Contact[] = [
     email: 'demi@quotient.co',
     companyId: 'company-4',
     title: 'UX Researcher',
-    status: 'Prospect',
+    status: ContactStatus.Prospect,
     owner: 'Olivia Rhye',
     lastContacted: 'Oct 24, 2024',
   },
@@ -47,7 +47,7 @@ export const initialContacts: Contact[] = [
     email: 'candice@circooles.com',
     companyId: 'company-5',
     title: 'Head of Design',
-    status: 'Lead',
+    status: ContactStatus.Lead,
     owner: 'Phoenix Baker',
     lastContacted: 'Oct 22, 2024',
   },
@@ -57,7 +57,7 @@ export const initialContacts: Contact[] = [
     email: 'natali@catalog.com',
     companyId: 'company-6',
     title: 'Product Manager',
-    status: 'Customer',
+    status: ContactStatus.Customer,
     owner: 'Lana Steiner',
     lastContacted: 'Oct 18, 2024',
   },
@@ -67,7 +67,7 @@ export const initialContacts: Contact[] = [
     email: 'grace@untitledui.com',
     companyId: 'company-1',
     title: 'Customer Success Manager',
-    status: 'Customer',
+    status: ContactStatus.Customer,
     owner: 'Olivia Rhye',
     lastContacted: 'Oct 16, 2024',
   },
@@ -81,7 +81,7 @@ export const initialCompanies: Company[] = [
     employees: '51–200',
     location: 'San Francisco, CA',
     annualRevenue: '$12.4M',
-    status: 'Customer',
+    status: CompanyStatus.Customer,
   },
   {
     id: 'company-2',
@@ -90,7 +90,7 @@ export const initialCompanies: Company[] = [
     employees: '201–500',
     location: 'New York, NY',
     annualRevenue: '$24.8M',
-    status: 'Prospect',
+    status: CompanyStatus.Prospect,
   },
   {
     id: 'company-3',
@@ -99,7 +99,7 @@ export const initialCompanies: Company[] = [
     employees: '11–50',
     location: 'Austin, TX',
     annualRevenue: '$4.2M',
-    status: 'Customer',
+    status: CompanyStatus.Customer,
   },
   {
     id: 'company-4',
@@ -108,7 +108,7 @@ export const initialCompanies: Company[] = [
     employees: '51–200',
     location: 'Chicago, IL',
     annualRevenue: '$8.6M',
-    status: 'Prospect',
+    status: CompanyStatus.Prospect,
   },
   {
     id: 'company-5',
@@ -117,7 +117,7 @@ export const initialCompanies: Company[] = [
     employees: '11–50',
     location: 'London, UK',
     annualRevenue: '$3.1M',
-    status: 'Customer',
+    status: CompanyStatus.Customer,
   },
   {
     id: 'company-6',
@@ -126,6 +126,6 @@ export const initialCompanies: Company[] = [
     employees: '51–200',
     location: 'Denver, CO',
     annualRevenue: '$6.7M',
-    status: 'Customer',
+    status: CompanyStatus.Customer,
   },
 ];

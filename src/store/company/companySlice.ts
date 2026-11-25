@@ -12,14 +12,10 @@ const companySlice = createSlice({
   initialState: initialCompanies,
   reducers: {
     addCompany(state, action: PayloadAction<Company>) {
-      console.log('Adding company:', action.payload);
-      console.log('current state:', state);
       state.unshift(action.payload);
     },
     deleteCompanies(state, action: PayloadAction<string[]>) {
       const deletedIds = new Set(action.payload);
-      console.log('Deleting companies with IDs:', deletedIds);
-      console.log('current state:', state);
       return state.filter((company) => !deletedIds.has(company.id));
     },
     updateCompany(state, action: PayloadAction<CompanyUpdate>) {

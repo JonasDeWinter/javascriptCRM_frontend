@@ -22,9 +22,11 @@ function CrmApp() {
   const dispatch = useAppDispatch();
   const contacts = useAppSelector((state) => state.contacts);
   const companies = useAppSelector((state) => state.companies);
-  const page: CrmPage = location.pathname.startsWith('/companies') ? 'companies' : 'contacts';
+  const page = location.pathname.startsWith(`/${CrmPage.Companies}`)
+    ? CrmPage.Companies
+    : CrmPage.Contacts;
 
-  const pageTitle = page === 'contacts' ? 'Contacts' : 'Companies';
+  const pageTitle = page === CrmPage.Contacts ? 'Contacts' : 'Companies';
 
   return (
     <AppLayout
@@ -32,7 +34,7 @@ function CrmApp() {
       contactCount={contacts.length}
       companyCount={companies.length}
       onNavigate={(nextPage) => {
-        navigate(nextPage === 'contacts' ? '/contacts' : '/companies');
+        navigate(`/${nextPage}`);
         setSearch('');
       }}
       pageTitle={pageTitle}
@@ -41,7 +43,7 @@ function CrmApp() {
     >
       <Routes>
         <Route
-          path="/contacts"
+          path={`/${CrmPage.Contacts}`}
           element={
             <ContactsPage
               contacts={contacts}
@@ -52,11 +54,11 @@ function CrmApp() {
           }
         />
         <Route
-          path="/contacts/:contactId"
+          path={`/${CrmPage.Contacts}/:contactId`}
           element={<ContactDetailsPage contacts={contacts} companies={companies} />}
         />
         <Route
-          path="/companies"
+          path={`/${CrmPage.Companies}`}
           element={
             <CompaniesPage
               companies={companies}
@@ -67,10 +69,10 @@ function CrmApp() {
           }
         />
         <Route
-          path="/companies/:companyId"
+          path={`/${CrmPage.Companies}/:companyId`}
           element={<CompanyDetailsPage companies={companies} contacts={contacts} />}
         />
-        <Route path="*" element={<Navigate to="/contacts" replace />} />
+        <Route path="*" element={<Navigate to={`/${CrmPage.Contacts}`} replace />} />
       </Routes>
       {isModalOpen && (
         <RecordModal
