@@ -1175,6 +1175,18 @@ button {
   padding-bottom: 13px;
 }
 
+.associated-company-link {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.associated-company-link:hover > div strong {
+  color: #6558cf;
+}
+
 .associated-company > div {
   display: grid;
   gap: 4px;
@@ -1196,6 +1208,84 @@ button {
   border-top: 1px solid #f1f1f4;
   color: #8e8d9b;
   font-size: 11px;
+}
+
+.company-profile-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 18px;
+}
+
+.company-details-grid {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.company-contacts-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.company-contacts-card h2 span {
+  display: inline-grid;
+  min-width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 10px;
+  background: #f1f0fb;
+  color: #6558cf;
+  font-size: 10px;
+}
+
+.company-contacts-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.company-contacts-list li + li {
+  border-top: 1px solid #f1f1f4;
+}
+
+.company-contact-link {
+  display: flex;
+  width: 100%;
+  min-height: 62px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.company-contact-link:hover .company-contact-copy strong {
+  color: #6558cf;
+}
+
+.company-contact-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
+}
+
+.company-contact-copy strong {
+  overflow: hidden;
+  color: #454452;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.company-contact-copy small {
+  overflow: hidden;
+  color: #92919f;
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .contact-not-found {

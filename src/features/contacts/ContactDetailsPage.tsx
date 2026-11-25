@@ -160,7 +160,12 @@ function ContactDetailsPage({ contacts, companies }: ContactDetailsPageProps) {
           </label>
           {company ? (
             <>
-              <div className="associated-company">
+              <button
+                className="associated-company associated-company-link"
+                onClick={() => navigate(`/companies/${company.id}`)}
+                type="button"
+                aria-label={`View details for ${company.name}`}
+              >
                 <span className={`company-mark company-mark--${company.name.split(' ')[0].toLowerCase()}`}>
                   {company.name.charAt(0)}
                 </span>
@@ -168,7 +173,7 @@ function ContactDetailsPage({ contacts, companies }: ContactDetailsPageProps) {
                   <strong>{company.name}</strong>
                   <span>{company.industry}</span>
                 </div>
-              </div>
+              </button>
               <div className="contact-detail-field">
                 <span>Location</span>
                 <strong>{company.location}</strong>

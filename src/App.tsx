@@ -6,6 +6,7 @@ import { ModalProvider } from './contexts/ModalContext';
 import { deleteCompanies } from './store/company/companySlice';
 import { deleteContacts } from './store/contact/contactSlice';
 import CompaniesPage from './features/companies/CompaniesPage';
+import CompanyDetailsPage from './features/companies/CompanyDetailsPage';
 import ContactsPage from './features/contacts/ContactsPage';
 import ContactDetailsPage from './features/contacts/ContactDetailsPage';
 import { CrmPage } from './types/crm';
@@ -21,7 +22,7 @@ function CrmApp() {
   const dispatch = useAppDispatch();
   const contacts = useAppSelector((state) => state.contacts);
   const companies = useAppSelector((state) => state.companies);
-  const page: CrmPage = location.pathname === '/companies' ? 'companies' : 'contacts';
+  const page: CrmPage = location.pathname.startsWith('/companies') ? 'companies' : 'contacts';
 
   const pageTitle = page === 'contacts' ? 'Contacts' : 'Companies';
 
@@ -64,6 +65,10 @@ function CrmApp() {
               onDeleteSelected={(ids) => dispatch(deleteCompanies(ids))}
             />
           }
+        />
+        <Route
+          path="/companies/:companyId"
+          element={<CompanyDetailsPage companies={companies} contacts={contacts} />}
         />
         <Route path="*" element={<Navigate to="/contacts" replace />} />
       </Routes>

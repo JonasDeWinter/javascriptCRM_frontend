@@ -73,6 +73,23 @@ test('opens contact details and shows its company association', () => {
   expect(screen.getByText('Associated contacts').parentElement?.textContent).toContain('2');
 });
 
+test('opens company details and lists its associated contacts', () => {
+  window.history.replaceState({}, '', '/companies');
+  renderApp();
+
+  fireEvent.click(screen.getByRole('button', { name: 'View details for Untitled UI' }));
+
+  expect(window.location.pathname).toBe('/companies/company-1');
+  expect(screen.getByRole('heading', { level: 1, name: 'Untitled UI' })).toBeInTheDocument();
+  expect(screen.getByText('San Francisco, CA')).toBeInTheDocument();
+  expect(screen.getByText('$12.4M')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'View details for Olivia Rhye' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'View details for Grace Hall' })).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole('button', { name: 'View details for Grace Hall' }));
+  expect(window.location.pathname).toBe('/contacts/contact-7');
+});
+
 test('shows the save button only while contact edits differ from saved values', () => {
   renderApp();
   fireEvent.click(screen.getByRole('button', { name: 'View details for Olivia Rhye' }));

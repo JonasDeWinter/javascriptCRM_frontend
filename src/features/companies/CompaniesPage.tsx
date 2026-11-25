@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import CrmTable from '../../components/ui/CrmTable';
 import CrmTableRow from '../../components/ui/CrmTableRow';
@@ -17,6 +18,7 @@ interface CompaniesPageProps {
 
 function CompaniesPage({ companies, contacts, search, onDeleteSelected }: CompaniesPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
+  const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   useEffect(() => {
     setCurrentPage('companies');
@@ -94,6 +96,7 @@ function CompaniesPage({ companies, contacts, search, onDeleteSelected }: Compan
             name={company.name}
             description={`${company.employees} employees`}
             selected={selectedIds.includes(company.id)}
+            onNameClick={() => navigate(`/companies/${company.id}`)}
             onSelectionChange={(id, selected) => setSelectedIds((current) => (
               selected
                 ? Array.from(new Set([...current, id]))
