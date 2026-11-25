@@ -3,6 +3,7 @@ import { useAppSelector } from './reduxHooks';
 
 export const useContactData: () => Contact[] = () => {
   return useAppSelector(
-    (state) => (state.contacts)
+    (state) => state.contacts.contacts
   );
 }
+

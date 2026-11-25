@@ -6,9 +6,11 @@ import CrmTableRow from '../../components/ui/CrmTableRow';
 import Icon from '../../components/ui/Icon';
 import MetricCard from '../../components/ui/MetricCard';
 import StatusBadge from '../../components/ui/StatusBadge';
+import { useAppDispatch } from '../../hooks/reduxHooks';
 import useModalContext from '../../hooks/useModalContext';
-import { useCompanyData } from '../../hooks/useCompanyData';
-import { useContactData } from '../../hooks/useContactData';
+import { useCompanyData } from '../../hooks/CompanyHooks';
+import { useContactData } from '../../hooks/ContactHooks';
+import { setSelectedCompanyId } from '../../store/company/companySlice';
 import { CompanyStatus } from '../../types/company';
 import { CrmPage } from '../../types/crm';
 
@@ -20,6 +22,7 @@ interface CompaniesPageProps {
 function CompaniesPage({ search, onDeleteSelected }: CompaniesPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const companies = useCompanyData();
   const contacts = useContactData();
 
@@ -100,7 +103,10 @@ function CompaniesPage({ search, onDeleteSelected }: CompaniesPageProps) {
             name={company.name}
             description={`${company.employees} employees`}
             selected={selectedIds.includes(company.id)}
-            onNameClick={() => navigate(`/companies/${company.id}`)}
+            onNameClick={() => {
+              dispatch(setSelectedCompanyId(company.id));
+              navigate(`/companies/${company.id}`);
+            }}
             onSelectionChange={(id, selected) => setSelectedIds((current) => (
               selected
                 ? Array.from(new Set([...current, id]))

@@ -3,23 +3,38 @@ import { Company } from '../../types/company';
 import { initialCompanies } from '../../utils/seedData';
 
 export interface CompanyUpdate {
-  id: string;
   changes: Partial<Omit<Company, 'id'>>;
 }
 
+export interface CompanyState {
+  companies: Company[];
+  selectedCompanyId: string | null;
+}
+
+const initialState: CompanyState = {
+  companies: initialCompanies,
+  selectedCompanyId: null,
+};
+
 const companySlice = createSlice({
   name: 'companies',
-  initialState: initialCompanies,
+  initialState,
   reducers: {
     addCompany(state, action: PayloadAction<Company>) {
-      state.unshift(action.payload);
+      state.companies.unshift(action.payload);
+    },
+    setSelectedCompanyId(state, action: PayloadAction<string | null>) {
+      state.selectedCompanyId = action.payload;
     },
     deleteCompanies(state, action: PayloadAction<string[]>) {
       const deletedIds = new Set(action.payload);
-      return state.filter((company) => !deletedIds.has(company.id));
+      state.companies = state.companies.filter((company) => !deletedIds.has(company.id));
+      if (state.selectedCompanyId && deletedIds.has(state.selectedCompanyId)) {
+        state.selectedCompanyId = null;
+      }
     },
     updateCompany(state, action: PayloadAction<CompanyUpdate>) {
-      const company = state.find((item) => item.id === action.payload.id);
+      const company = state.companies.find((item) => item.id === state.selectedCompanyId);
       if (company) {
         Object.assign(company, action.payload.changes);
       }
@@ -27,5 +42,5 @@ const companySlice = createSlice({
   },
 });
 
-export const { addCompany, deleteCompanies, updateCompany } = companySlice.actions;
+export const { addCompany, deleteCompanies, setSelectedCompanyId, updateCompany } = companySlice.actions;
 export default companySlice.reducer;

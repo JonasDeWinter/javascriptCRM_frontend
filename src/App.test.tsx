@@ -2,8 +2,8 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import App from './App';
-import { deleteCompanies, updateCompany } from './store/company/companySlice';
-import { updateContact } from './store/contact/contactSlice';
+import { deleteCompanies, setSelectedCompanyId, updateCompany } from './store/company/companySlice';
+import { deleteContacts, setSelectedContactId, updateContact } from './store/contact/contactSlice';
 import { createAppStore } from './store/store';
 
 beforeEach(() => {
@@ -73,6 +73,13 @@ test('opens contact details and shows its company association', () => {
   expect(screen.getByText('Associated contacts').parentElement?.textContent).toContain('2');
 });
 
+test('loads the contact detail matching a direct URL into the selected contact state', () => {
+  window.history.replaceState({}, '', '/contacts/contact-3');
+  renderApp();
+
+  expect(screen.getByRole('heading', { level: 1, name: 'Lana Steiner' })).toBeInTheDocument();
+});
+
 test('opens company details and lists its associated contacts', () => {
   window.history.replaceState({}, '', '/companies');
   renderApp();
@@ -88,6 +95,14 @@ test('opens company details and lists its associated contacts', () => {
 
   fireEvent.click(screen.getByRole('button', { name: 'View details for Grace Hall' }));
   expect(window.location.pathname).toBe('/contacts/contact-7');
+});
+
+test('loads the company detail matching a direct URL into the selected company state', () => {
+  window.history.replaceState({}, '', '/companies/company-2');
+  renderApp();
+
+  expect(screen.getByRole('heading', { level: 1, name: 'Linear' })).toBeInTheDocument();
+  expect(screen.getByText('New York, NY')).toBeInTheDocument();
 });
 
 test('shows the save button only while contact edits differ from saved values', () => {
@@ -114,25 +129,51 @@ test('saves edited contact fields to Redux', () => {
 
 test('updates contacts and companies through Redux actions', () => {
   const store = createAppStore();
+  store.dispatch(setSelectedContactId('contact-1'));
   store.dispatch(updateContact({
-    id: 'contact-1',
     changes: { title: 'Senior Product Designer' },
   }));
+  store.dispatch(setSelectedCompanyId('company-1'));
   store.dispatch(updateCompany({
-    id: 'company-1',
     changes: { industry: 'Product Design' },
   }));
 
-  expect(store.getState().contacts[0].title).toBe('Senior Product Designer');
-  expect(store.getState().companies[0].industry).toBe('Product Design');
+  expect(store.getState().contacts.selectedContactId).toBe('contact-1');
+  expect(store.getState().contacts.contacts[0].title).toBe('Senior Product Designer');
+  expect(store.getState().companies.selectedCompanyId).toBe('company-1');
+  expect(store.getState().companies.companies[0].industry).toBe('Product Design');
 });
 
 test('clears company associations when a company is deleted', () => {
   const store = createAppStore();
   store.dispatch(deleteCompanies(['company-1']));
 
-  expect(store.getState().contacts.find((contact) => contact.id === 'contact-1')?.companyId).toBeNull();
-  expect(store.getState().contacts.find((contact) => contact.id === 'contact-7')?.companyId).toBeNull();
+  expect(store.getState().contacts.contacts.find((contact) => contact.id === 'contact-1')?.companyId).toBeNull();
+  expect(store.getState().contacts.contacts.find((contact) => contact.id === 'contact-7')?.companyId).toBeNull();
+});
+
+test('updates and deletes the selected contact by its Redux selection', () => {
+  const store = createAppStore();
+  store.dispatch(setSelectedContactId('contact-7'));
+  store.dispatch(updateContact({ changes: { title: 'Account Manager' } }));
+
+  expect(store.getState().contacts.contacts[0].title).toBe('Product Designer');
+  expect(store.getState().contacts.contacts.find((contact) => contact.id === 'contact-7')?.title).toBe('Account Manager');
+
+  store.dispatch(deleteContacts(['contact-7']));
+  expect(store.getState().contacts.selectedContactId).toBeNull();
+});
+
+test('updates and deletes the selected company by its Redux selection', () => {
+  const store = createAppStore();
+  store.dispatch(setSelectedCompanyId('company-2'));
+  store.dispatch(updateCompany({ changes: { location: 'Boston, MA' } }));
+
+  expect(store.getState().companies.companies[0].location).toBe('San Francisco, CA');
+  expect(store.getState().companies.companies.find((company) => company.id === 'company-2')?.location).toBe('Boston, MA');
+
+  store.dispatch(deleteCompanies(['company-2']));
+  expect(store.getState().companies.selectedCompanyId).toBeNull();
 });
 
 test('deletes a selected contact after confirmation', () => {

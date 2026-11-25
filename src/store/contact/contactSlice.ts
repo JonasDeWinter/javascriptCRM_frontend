@@ -4,23 +4,38 @@ import { initialContacts } from '../../utils/seedData';
 import { deleteCompanies } from '../company/companySlice';
 
 export interface ContactUpdate {
-  id: string;
   changes: Partial<Omit<Contact, 'id'>>;
 }
 
+export interface ContactState {
+  contacts: Contact[];
+  selectedContactId: string | null;
+}
+
+const initialState: ContactState = {
+  contacts: initialContacts,
+  selectedContactId: null,
+};
+
 const contactSlice = createSlice({
   name: 'contacts',
-  initialState: initialContacts,
+  initialState,
   reducers: {
     addContact(state, action: PayloadAction<Contact>) {
-      state.unshift(action.payload);
+      state.contacts.unshift(action.payload);
+    },
+    setSelectedContactId(state, action: PayloadAction<string | null>) {
+      state.selectedContactId = action.payload;
     },
     deleteContacts(state, action: PayloadAction<string[]>) {
       const deletedIds = new Set(action.payload);
-      return state.filter((contact) => !deletedIds.has(contact.id));
+      state.contacts = state.contacts.filter((contact) => !deletedIds.has(contact.id));
+      if (state.selectedContactId && deletedIds.has(state.selectedContactId)) {
+        state.selectedContactId = null;
+      }
     },
     updateContact(state, action: PayloadAction<ContactUpdate>) {
-      const contact = state.find((item) => item.id === action.payload.id);
+      const contact = state.contacts.find((item) => item.id === state.selectedContactId);
       if (contact) {
         Object.assign(contact, action.payload.changes);
       }
@@ -29,7 +44,7 @@ const contactSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(deleteCompanies, (state, action) => {
       const deletedCompanyIds = new Set(action.payload);
-      state.forEach((contact) => {
+      state.contacts.forEach((contact) => {
         if (contact.companyId && deletedCompanyIds.has(contact.companyId)) {
           contact.companyId = null;
         }
@@ -38,5 +53,5 @@ const contactSlice = createSlice({
   },
 });
 
-export const { addContact, deleteContacts, updateContact } = contactSlice.actions;
+export const { addContact, deleteContacts, setSelectedContactId, updateContact } = contactSlice.actions;
 export default contactSlice.reducer;

@@ -1,12 +1,12 @@
-import React, { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import useModalContext from '../../hooks/useModalContext';
-import { useAppDispatch } from '../../hooks/reduxHooks';
-import { useCompanyData } from '../../hooks/useCompanyData';
-import { useContactData } from '../../hooks/useContactData';
-import { updateContact } from '../../store/contact/contactSlice';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { useCompanyData } from '../../hooks/CompanyHooks';
+import { useContactData } from '../../hooks/ContactHooks';
+import { setSelectedContactId, updateContact } from '../../store/contact/contactSlice';
 import { Contact, ContactStatus } from '../../types/contact';
 import { CrmPage } from '../../types/crm';
 
@@ -31,7 +31,8 @@ function ContactDetailsPage() {
   const dispatch = useAppDispatch();
   const contacts = useContactData();
   const companies = useCompanyData();
-  const contact = contacts.find((item) => item.id === contactId);
+  const selectedContactId = useAppSelector((state) => state.contacts.selectedContactId);
+  const contact = contacts.find((item) => item.id === selectedContactId);
   const [draft, setDraft] = useState<EditableContact>(() => createContactDraft(contact));
   const company = draft.companyId
     ? companies.find((item) => item.id === draft.companyId)
@@ -41,7 +42,11 @@ function ContactDetailsPage() {
     setCurrentPage(CrmPage.Contacts);
   }, [setCurrentPage]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    dispatch(setSelectedContactId(contactId ?? null));
+  }, [contactId, dispatch]);
+
+  useLayoutEffect(() => {
     if (contact) {
       setDraft(createContactDraft(contact));
     }
@@ -76,7 +81,7 @@ function ContactDetailsPage() {
   };
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    dispatch(updateContact({ id: contact.id, changes: draft }));
+    dispatch(updateContact({ changes: draft }));
   };
 
   return (

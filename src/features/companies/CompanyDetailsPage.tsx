@@ -1,26 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { useCompanyData } from '../../hooks/useCompanyData';
-import { useContactData } from '../../hooks/useContactData';
+import { useAppDispatch, useAppSelector } from '../../hooks/reduxHooks';
+import { useCompanyData } from '../../hooks/CompanyHooks';
+import { useContactData } from '../../hooks/ContactHooks';
 import useModalContext from '../../hooks/useModalContext';
+import { setSelectedContactId } from '../../store/contact/contactSlice';
+import { setSelectedCompanyId } from '../../store/company/companySlice';
 import { CrmPage } from '../../types/crm';
 
 function CompanyDetailsPage() {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { setCurrentPage } = useModalContext();
   const contacts = useContactData();
   const companies = useCompanyData();
+  const selectedCompanyId = useAppSelector((state) => state.companies.selectedCompanyId);
 
-  const company = companies.find((item) => item.id === companyId);
-  const associatedContacts = contacts.filter((contact) => contact.companyId === companyId);
+  const company = companies.find((item) => item.id === selectedCompanyId);
+  const associatedContacts = contacts.filter((contact) => contact.companyId === selectedCompanyId);
 
   useEffect(() => {
     setCurrentPage(CrmPage.Companies);
   }, [setCurrentPage]);
+
+  useLayoutEffect(() => {
+    dispatch(setSelectedCompanyId(companyId ?? null));
+  }, [companyId, dispatch]);
 
   if (!company) {
     return (
@@ -90,7 +99,10 @@ function CompanyDetailsPage() {
                 <li key={contact.id}>
                   <button
                     className="company-contact-link"
-                    onClick={() => navigate(`/contacts/${contact.id}`)}
+                    onClick={() => {
+                      dispatch(setSelectedContactId(contact.id));
+                      navigate(`/contacts/${contact.id}`);
+                    }}
                     type="button"
                     aria-label={`View details for ${contact.name}`}
                   >

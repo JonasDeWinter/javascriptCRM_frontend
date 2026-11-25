@@ -3,12 +3,12 @@ import { Link } from 'react-router-dom';
 import Avatar from '../ui/Avatar';
 import Icon from '../ui/Icon';
 import { CrmPage } from '../../types/crm';
+import { useCompanyData } from '../../hooks/CompanyHooks';
+import { useContactData } from '../../hooks/ContactHooks';
 
 interface AppLayoutProps {
   activePage: CrmPage;
   onNavigate: (page: CrmPage) => void;
-  contactCount: number;
-  companyCount: number;
   pageTitle: string;
   search: string;
   onSearchChange: (value: string) => void;
@@ -18,13 +18,15 @@ interface AppLayoutProps {
 function AppLayout({
   activePage,
   onNavigate,
-  contactCount,
-  companyCount,
   pageTitle,
   search,
   onSearchChange,
   children,
 }: AppLayoutProps) {
+  const contactCount = useContactData().length;
+  const companyCount = useCompanyData().length;
+
+
   return (
     <div className="app-shell">
       <aside className="sidebar">

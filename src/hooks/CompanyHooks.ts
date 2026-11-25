@@ -3,6 +3,6 @@ import { useAppSelector } from './reduxHooks';
 
 export const useCompanyData: () => Company[] = () => {
   return useAppSelector(
-    (state) => (state.companies)
+    (state) => state.companies.companies
   );
 }

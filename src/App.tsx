@@ -11,8 +11,8 @@ import ContactsPage from './features/contacts/ContactsPage';
 import ContactDetailsPage from './features/contacts/ContactDetailsPage';
 import { CrmPage } from './types/crm';
 import { useAppDispatch } from './hooks/reduxHooks';
-import { useCompanyData } from './hooks/useCompanyData';
-import { useContactData } from './hooks/useContactData';
+import { useCompanyData } from './hooks/CompanyHooks';
+import { useContactData } from './hooks/ContactHooks';
 import useModalContext from './hooks/useModalContext';
 import './styles/App.css';
 
@@ -22,8 +22,7 @@ function CrmApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const contacts = useContactData();
-  const companies = useCompanyData();
+
   const page = location.pathname.startsWith(`/${CrmPage.Companies}`)
     ? CrmPage.Companies
     : CrmPage.Contacts;
@@ -33,8 +32,6 @@ function CrmApp() {
   return (
     <AppLayout
       activePage={page}
-      contactCount={contacts.length}
-      companyCount={companies.length}
       onNavigate={(nextPage) => {
         navigate(`/${nextPage}`);
         setSearch('');

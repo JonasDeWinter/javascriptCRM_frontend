@@ -1,7 +1,7 @@
 import React, { FormEvent, useState } from 'react';
 import useModalContext from '../../hooks/useModalContext';
 import { useAppDispatch } from '../../hooks/reduxHooks';
-import { useCompanyData } from '../../hooks/useCompanyData';
+import { useCompanyData } from '../../hooks/CompanyHooks';
 import { addCompany } from '../../store/company/companySlice';
 import { addContact } from '../../store/contact/contactSlice';
 import { CompanyStatus } from '../../types/company';

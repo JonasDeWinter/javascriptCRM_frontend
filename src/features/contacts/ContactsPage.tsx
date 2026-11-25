@@ -1,14 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import CrmTable from '../../components/ui/CrmTable';
 import CrmTableRow from '../../components/ui/CrmTableRow';
 import Icon from '../../components/ui/Icon';
 import MetricCard from '../../components/ui/MetricCard';
 import StatusBadge from '../../components/ui/StatusBadge';
-import { useCompanyData } from '../../hooks/useCompanyData';
-import { useContactData } from '../../hooks/useContactData';
+import { useCompanyData } from '../../hooks/CompanyHooks';
+import { useContactData } from '../../hooks/ContactHooks';
+import { useAppDispatch } from '../../hooks/reduxHooks';
 import useModalContext from '../../hooks/useModalContext';
+import { setSelectedContactId } from '../../store/contact/contactSlice';
 import { ContactStatus } from '../../types/contact';
 import { CrmPage } from '../../types/crm';
 
@@ -20,6 +22,7 @@ interface ContactsPageProps {
 function ContactsPage({ search, onDeleteSelected }: ContactsPageProps) {
   const { openModal, setCurrentPage } = useModalContext();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const contacts = useContactData();
   const companies = useCompanyData();
   const [statusFilter, setStatusFilter] = useState('All contacts');
@@ -118,7 +121,10 @@ function ContactsPage({ search, onDeleteSelected }: ContactsPageProps) {
                   ? Array.from(new Set([...current, id]))
                   : current.filter((selectedId) => selectedId !== id)
               ))}
-              onNameClick={() => navigate(`/contacts/${contact.id}`)}
+              onNameClick={() => {
+                dispatch(setSelectedContactId(contact.id));
+                navigate(`/contacts/${contact.id}`);
+              }}
               cells={[
                 {
                   content: company ? (
@@ -134,6 +140,7 @@ function ContactsPage({ search, onDeleteSelected }: ContactsPageProps) {
         })}
       </CrmTable>
       <div className="page-footer"><span>© 2024 Orbit CRM</span><span>Need help? <a href="mailto:support@orbitcrm.example">Contact support</a></span></div>
+        
     </>
   );
 }
