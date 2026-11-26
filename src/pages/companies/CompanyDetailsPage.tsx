@@ -2,20 +2,19 @@ import React, { useEffect, useLayoutEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
-import StatusBadge from '../../components/ui/StatusBadge';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { useCompanyData, useSelectedCompanyId } from '../../hooks/CompanyHooks';
 import { useContactData } from '../../hooks/ContactHooks';
-import useModalContext from '../../hooks/useModalContext';
+import { setCurrentPage } from '../../store/siteSettings/siteSettingsSlice';
 import { setSelectedContactId } from '../../store/contact/contactSlice';
 import { setSelectedCompanyId } from '../../store/company/companySlice';
 import { CrmPage } from '../../types/crm';
+import { formatContactName } from '../../utils/formatContactName';
 
 function CompanyDetailsPage() {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { setCurrentPage } = useModalContext();
   const contacts = useContactData();
   const companies = useCompanyData();
   const selectedCompanyId = useSelectedCompanyId();
@@ -24,8 +23,8 @@ function CompanyDetailsPage() {
   const associatedContacts = contacts.filter((contact) => contact.companyId === selectedCompanyId);
 
   useEffect(() => {
-    setCurrentPage(CrmPage.Companies);
-  }, [setCurrentPage]);
+    dispatch(setCurrentPage(CrmPage.Companies));
+  }, [dispatch]);
 
   useLayoutEffect(() => {
     dispatch(setSelectedCompanyId(companyId ?? null));
@@ -59,7 +58,6 @@ function CompanyDetailsPage() {
             <p>{company.industry}</p>
           </div>
         </div>
-        <StatusBadge status={company.status} />
       </section>
 
       <div className="contact-details-grid company-details-grid">
@@ -74,20 +72,16 @@ function CompanyDetailsPage() {
             <strong>{company.industry}</strong>
           </div>
           <div className="contact-detail-field">
-            <span>Company size</span>
-            <strong>{company.employees} employees</strong>
+            <span>Address</span>
+            <strong>{company.address || '—'}</strong>
           </div>
           <div className="contact-detail-field">
-            <span>Location</span>
-            <strong>{company.location}</strong>
+            <span>Phone</span>
+            <strong>{company.phone || '—'}</strong>
           </div>
           <div className="contact-detail-field">
-            <span>Annual revenue</span>
-            <strong>{company.annualRevenue}</strong>
-          </div>
-          <div className="contact-detail-field">
-            <span>Status</span>
-            <strong><StatusBadge status={company.status} /></strong>
+            <span>Website</span>
+            <strong>{company.website || '—'}</strong>
           </div>
         </section>
 
@@ -104,15 +98,13 @@ function CompanyDetailsPage() {
                       navigate(`/contacts/${contact.id}`);
                     }}
                     type="button"
-                    aria-label={`View details for ${contact.name}`}
+                    aria-label={`View details for ${formatContactName(contact)}`}
                   >
-                    <Avatar name={contact.name} size="medium" />
+                    <Avatar name={formatContactName(contact)} size="medium" />
                     <span className="company-contact-copy">
-                      <strong>{contact.name}</strong>
-                      <small>{contact.title}</small>
+                      <strong>{formatContactName(contact)}</strong>
                       <small>{contact.email}</small>
                     </span>
-                    <StatusBadge status={contact.status} />
                   </button>
                 </li>
               ))}

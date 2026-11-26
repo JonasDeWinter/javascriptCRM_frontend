@@ -1,27 +1,34 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
-import RecordModal from './components/ui/RecordModal';
-import { ModalProvider } from './contexts/ModalContext';
-import { deleteCompanies } from './store/company/companySlice';
-import { deleteContacts } from './store/contact/contactSlice';
+import Popup from './components/ui/Popup';
+import RecordForm from './components/ui/RecordForm';
+import { deleteCompanies, fetchCompanies } from './store/company/companySlice';
+import { deleteContacts, fetchContacts } from './store/contact/contactSlice';
 import CompaniesPage from './pages/companies/CompaniesPage';
 import CompanyDetailsPage from './pages/companies/CompanyDetailsPage';
 import ContactsPage from './pages/contacts/ContactsPage';
 import ContactDetailsPage from './pages/contacts/ContactDetailsPage';
 import { CrmPage } from './types/crm';
-import { useAppDispatch } from './hooks/reduxHooks';
-import { useCompanyData } from './hooks/CompanyHooks';
-import { useContactData } from './hooks/ContactHooks';
-import useModalContext from './hooks/useModalContext';
+import { useAppDispatch, useAppSelector } from './hooks/reduxHooks';
+import { useIsModalOpen } from './hooks/siteSettingsHooks';
+import { closeModal } from './store/siteSettings/siteSettingsSlice';
 import './styles/App.css';
 
 function CrmApp() {
   const [search, setSearch] = useState('');
-  const { isModalOpen } = useModalContext();
+  const isModalOpen = useIsModalOpen();
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const companyError = useAppSelector((state) => state.companies.error);
+  const contactError = useAppSelector((state) => state.contacts.error);
+  const apiErrors = [companyError, contactError].filter((error): error is string => Boolean(error));
+
+  useEffect(() => {
+    void dispatch(fetchCompanies());
+    void dispatch(fetchContacts());
+  }, [dispatch]);
 
   const page = location.pathname.startsWith(`/${CrmPage.Companies}`)
     ? CrmPage.Companies
@@ -40,6 +47,11 @@ function CrmApp() {
       search={search}
       onSearchChange={setSearch}
     >
+      {apiErrors.length > 0 && (
+        <div className="api-error" role="alert">
+          {apiErrors.join(' ')}
+        </div>
+      )}
       <Routes>
         <Route
           path={`/${CrmPage.Contacts}`}
@@ -70,7 +82,9 @@ function CrmApp() {
         <Route path="*" element={<Navigate to={`/${CrmPage.Contacts}`} replace />} />
       </Routes>
       {isModalOpen && (
-        <RecordModal />
+        <Popup labelledBy="record-form-title" onClose={() => dispatch(closeModal())}>
+          <RecordForm />
+        </Popup>
       )}
     </AppLayout>
   );
@@ -79,9 +93,7 @@ function CrmApp() {
 function App() {
   return (
     <BrowserRouter>
-      <ModalProvider>
-        <CrmApp />
-      </ModalProvider>
+      <CrmApp />
     </BrowserRouter>
   );
 }

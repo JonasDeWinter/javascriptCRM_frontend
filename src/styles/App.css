@@ -17,6 +17,15 @@ button {
   color: #242433;
 }
 
+.api-error {
+  padding: 12px 16px;
+  border: 1px solid #f1b6b6;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background: #fff3f3;
+  color: #9c2c2c;
+}
+
 .sidebar {
   position: fixed;
   z-index: 3;
@@ -1308,7 +1317,7 @@ button {
   font-size: 12px;
 }
 
-.modal-backdrop {
+.popup-backdrop {
   position: fixed;
   z-index: 10;
   inset: 0;
@@ -1319,7 +1328,7 @@ button {
   backdrop-filter: blur(2px);
 }
 
-.record-modal {
+.popup {
   width: min(100%, 440px);
   padding: 24px;
   border: 1px solid #efeff3;
@@ -1328,13 +1337,13 @@ button {
   box-shadow: 0 18px 55px #1f1c3d2e;
 }
 
-.record-modal__top {
+.record-form__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.record-modal__icon {
+.record-form__icon {
   display: grid;
   width: 40px;
   height: 40px;
@@ -1345,20 +1354,20 @@ button {
   color: #7164d4;
 }
 
-.record-modal h2 {
+.record-form h2 {
   margin: 18px 0 5px;
   color: #302f40;
   font-size: 19px;
   letter-spacing: -0.3px;
 }
 
-.record-modal__description {
+.record-form__description {
   margin: 0 0 21px;
   color: #898896;
   font-size: 12px;
 }
 
-.record-modal form {
+.record-form form {
   display: grid;
   gap: 13px;
 }
@@ -1405,7 +1414,7 @@ button {
   gap: 11px;
 }
 
-.record-modal__footer {
+.record-form__footer {
   display: flex;
   justify-content: flex-end;
   gap: 8px;

@@ -2,54 +2,49 @@ import { FormEvent, useEffect, useLayoutEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import Avatar from '../../components/ui/Avatar';
 import Icon from '../../components/ui/Icon';
-import useModalContext from '../../hooks/useModalContext';
 import { useAppDispatch } from '../../hooks/reduxHooks';
 import { useCompanyData } from '../../hooks/CompanyHooks';
-import { useContactData, useSelectedContactId } from '../../hooks/ContactHooks';
+import { useContactData } from '../../hooks/ContactHooks';
+import { setCurrentPage } from '../../store/siteSettings/siteSettingsSlice';
 import { setSelectedContactId, updateContact } from '../../store/contact/contactSlice';
-import { Contact, ContactStatus } from '../../types/contact';
+import { Contact } from '../../types/contact';
 import { CrmPage } from '../../types/crm';
+import { formatContactName } from '../../utils/formatContactName';
 
-type EditableContact = Pick<Contact, 'name' | 'email' | 'companyId' | 'title' | 'status' | 'owner' | 'lastContacted'>;
+type EditableContact = Pick<Contact, 'firstName' | 'lastName' | 'email' | 'phone' | 'companyId'>;
 
 function createContactDraft(contact?: Contact): EditableContact {
   return {
-    name: contact?.name ?? '',
+    firstName: contact?.firstName ?? '',
+    lastName: contact?.lastName ?? '',
     email: contact?.email ?? '',
+    phone: contact?.phone ?? '',
     companyId: contact?.companyId ?? null,
-    title: contact?.title ?? '',
-    status: contact?.status ?? ContactStatus.Lead,
-    owner: contact?.owner ?? '',
-    lastContacted: contact?.lastContacted ?? '',
   };
 }
 
 function ContactDetailsPage() {
   const { contactId } = useParams<{ contactId: string }>();
   const navigate = useNavigate();
-  const { setCurrentPage } = useModalContext();
   const dispatch = useAppDispatch();
   const contacts = useContactData();
   const companies = useCompanyData();
-  const selectedContactId = useSelectedContactId();
-  const contact = contacts.find((item) => item.id === selectedContactId);
+  const contact = contacts.find((item) => item.id === contactId);
   const [draft, setDraft] = useState<EditableContact>(() => createContactDraft(contact));
   const company = draft.companyId
     ? companies.find((item) => item.id === draft.companyId)
     : undefined;
 
   useEffect(() => {
-    setCurrentPage(CrmPage.Contacts);
-  }, [setCurrentPage]);
+    dispatch(setCurrentPage(CrmPage.Contacts));
+  }, [dispatch]);
 
   useLayoutEffect(() => {
     dispatch(setSelectedContactId(contactId ?? null));
   }, [contactId, dispatch]);
 
-  useLayoutEffect(() => {
-    if (contact) {
-      setDraft(createContactDraft(contact));
-    }
+  useEffect(() => {
+    if (contact) setDraft(createContactDraft(contact));
   }, [contact]);
 
   if (!contact) {
@@ -65,13 +60,11 @@ function ContactDetailsPage() {
   }
 
   const hasChanges = (
-    draft.name !== contact.name
+    draft.firstName !== contact.firstName
+    || draft.lastName !== contact.lastName
     || draft.email !== contact.email
+    || draft.phone !== contact.phone
     || draft.companyId !== contact.companyId
-    || draft.title !== contact.title
-    || draft.status !== contact.status
-    || draft.owner !== contact.owner
-    || draft.lastContacted !== contact.lastContacted
   );
   const associatedContacts = company
     ? contacts.filter((item) => item.id !== contact.id && item.companyId === company.id).length + 1
@@ -81,7 +74,14 @@ function ContactDetailsPage() {
   };
   const handleSave = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    dispatch(updateContact({ changes: draft }));
+    const changes: Partial<EditableContact> = {
+      ...(draft.firstName !== contact.firstName ? { firstName: draft.firstName } : {}),
+      ...(draft.lastName !== contact.lastName ? { lastName: draft.lastName } : {}),
+      ...(draft.email !== contact.email ? { email: draft.email } : {}),
+      ...(draft.phone !== contact.phone ? { phone: draft.phone } : {}),
+      ...(draft.companyId !== contact.companyId ? { companyId: draft.companyId } : {}),
+    };
+    void dispatch(updateContact({ id: contact.id, changes }));
   };
 
   return (
@@ -91,34 +91,13 @@ function ContactDetailsPage() {
       </button>
       <section className="contact-profile-heading">
         <div className="contact-profile-heading__identity">
-          <Avatar name={draft.name} size="large" />
+          <Avatar name={formatContactName(draft)} size="large" />
           <div>
             <div className="eyebrow"><span className="eyebrow__dot" /> CONTACT PROFILE</div>
-            <h1>{draft.name}</h1>
-            <p>{draft.title}</p>
+            <h1>{formatContactName(draft)}</h1>
           </div>
         </div>
         <div className="contact-profile-heading__actions">
-          <label className="sr-only" htmlFor="contact-status">Contact status</label>
-          <select
-            className={`contact-status-select status-badge--${draft.status.toLowerCase()}`}
-            id="contact-status"
-            value={draft.status}
-            onChange={(event) => {
-              const status = event.target.value;
-              if (
-                status === ContactStatus.Customer
-                || status === ContactStatus.Lead
-                || status === ContactStatus.Prospect
-              ) {
-                updateDraft({ status });
-              }
-            }}
-          >
-            <option value={ContactStatus.Customer}>{ContactStatus.Customer}</option>
-            <option value={ContactStatus.Lead}>{ContactStatus.Lead}</option>
-            <option value={ContactStatus.Prospect}>{ContactStatus.Prospect}</option>
-          </select>
           {hasChanges && (
             <button className="button button--primary" type="submit">
               <Icon name="check" size={16} /> Save changes
@@ -131,28 +110,22 @@ function ContactDetailsPage() {
         <section className="contact-detail-card">
           <h2>Contact information</h2>
           <label className="contact-detail-field">
-            <span>Full name</span>
-            <input aria-label="Full name" required value={draft.name} onChange={(event) => updateDraft({ name: event.target.value })} />
+            <span>First name</span>
+            <input aria-label="First name" required value={draft.firstName} onChange={(event) => updateDraft({ firstName: event.target.value })} />
+          </label>
+          <label className="contact-detail-field">
+            <span>Last name</span>
+            <input aria-label="Last name" required value={draft.lastName} onChange={(event) => updateDraft({ lastName: event.target.value })} />
           </label>
           <label className="contact-detail-field">
             <span>Email address</span>
             <span className="contact-detail-control"><Icon name="mail" size={16} />
-              <input aria-label="Email address" required type="email" value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} />
+              <input aria-label="Email address" type="email" value={draft.email} onChange={(event) => updateDraft({ email: event.target.value })} />
             </span>
           </label>
           <label className="contact-detail-field">
-            <span>Job title</span>
-            <input aria-label="Job title" required value={draft.title} onChange={(event) => updateDraft({ title: event.target.value })} />
-          </label>
-          <label className="contact-detail-field">
-            <span>Contact owner</span>
-            <span className="contact-detail-control"><Avatar name={draft.owner || 'Owner'} size="small" />
-              <input aria-label="Contact owner" required value={draft.owner} onChange={(event) => updateDraft({ owner: event.target.value })} />
-            </span>
-          </label>
-          <label className="contact-detail-field">
-            <span>Last contacted</span>
-            <input aria-label="Last contacted" value={draft.lastContacted} onChange={(event) => updateDraft({ lastContacted: event.target.value })} />
+            <span>Phone number</span>
+            <input aria-label="Phone number" value={draft.phone} onChange={(event) => updateDraft({ phone: event.target.value })} />
           </label>
         </section>
 
@@ -184,12 +157,12 @@ function ContactDetailsPage() {
                 </div>
               </button>
               <div className="contact-detail-field">
-                <span>Location</span>
-                <strong>{company.location}</strong>
+                <span>Address</span>
+                <strong>{company.address || '—'}</strong>
               </div>
               <div className="contact-detail-field">
-                <span>Company size</span>
-                <strong>{company.employees} employees</strong>
+                <span>Company phone</span>
+                <strong>{company.phone || '—'}</strong>
               </div>
               <div className="contact-detail-field">
                 <span>Associated contacts</span>

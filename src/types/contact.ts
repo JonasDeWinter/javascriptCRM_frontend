@@ -1,16 +1,8 @@
-export enum ContactStatus {
-  Customer = 'Customer',
-  Lead = 'Lead',
-  Prospect = 'Prospect'
-}
-
 export interface Contact {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
+  phone: string;
   companyId: string | null;
-  title: string;
-  status: ContactStatus;
-  owner: string;
-  lastContacted: string;
 }

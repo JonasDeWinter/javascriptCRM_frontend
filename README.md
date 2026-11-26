@@ -2,6 +2,20 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Backend API
+
+The CRM reads and writes companies and contacts through the
+[javascriptCRM backend](https://github.com/JonasDeWinter/javascriptCRM_backend).
+Start that backend with `PORT=3001` so it is available at
+`http://localhost:3001`, then start this frontend with `npm start`.
+
+The frontend uses the documented `/companies` and `/contacts` endpoints to
+load, create, and delete records, and updates contacts through `PATCH`. It
+displays the backend's supported company fields (name, industry, website,
+phone, and address) and contact fields (first name, last name, email, phone,
+and company association). Request failures are shown in the app rather than
+replaced with local sample records.
+
 ## Available Scripts
 
 In the project directory, you can run:
