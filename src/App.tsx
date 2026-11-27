@@ -13,7 +13,18 @@ import { CrmPage } from './types/crm';
 import { useAppDispatch, useAppSelector } from './hooks/reduxHooks';
 import { useIsModalOpen } from './hooks/siteSettingsHooks';
 import { closeModal } from './store/siteSettings/siteSettingsSlice';
+import LoginPage from './pages/LoginPage';
+import { clearStoredAuth, UNAUTHORIZED_EVENT } from './services/apiClient';
+import { logout } from './store/auth/authSlice';
 import './styles/App.css';
+
+interface LoginRedirectState {
+  from?: {
+    pathname?: string;
+    search?: string;
+    hash?: string;
+  };
+}
 
 function CrmApp() {
   const [search, setSearch] = useState('');
@@ -23,12 +34,65 @@ function CrmApp() {
   const dispatch = useAppDispatch();
   const companyError = useAppSelector((state) => state.companies.error);
   const contactError = useAppSelector((state) => state.contacts.error);
+  const token = useAppSelector((state) => state.auth.token);
+  const username = useAppSelector((state) => state.auth.username);
+  const expiresAt = useAppSelector((state) => state.auth.expiresAt);
   const apiErrors = [companyError, contactError].filter((error): error is string => Boolean(error));
+  const redirectState = location.state as LoginRedirectState | null;
+  const requestedPath = redirectState?.from;
+  const loginReturnPath = requestedPath && requestedPath.pathname !== '/' && requestedPath.pathname !== '/login'
+    ? `${requestedPath.pathname ?? ''}${requestedPath.search ?? ''}${requestedPath.hash ?? ''}`
+    : `/${CrmPage.Contacts}`;
 
   useEffect(() => {
+    if (!token || expiresAt === null || expiresAt <= Date.now()) return;
     void dispatch(fetchCompanies());
     void dispatch(fetchContacts());
+  }, [dispatch, expiresAt, token]);
+
+  useEffect(() => {
+    if (!token || expiresAt === null) return;
+
+    const remainingTime = expiresAt - Date.now();
+    if (remainingTime <= 0) {
+      clearStoredAuth();
+      dispatch(logout());
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      clearStoredAuth();
+      dispatch(logout());
+    }, remainingTime);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [dispatch, expiresAt, token]);
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      clearStoredAuth();
+      dispatch(logout());
+    };
+
+    window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
   }, [dispatch]);
+
+  if (!token || expiresAt === null || expiresAt <= Date.now()) {
+    if (location.pathname !== '/login') {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    return (
+      <LoginPage
+        onLoginSuccess={() => navigate(loginReturnPath, { replace: true })}
+      />
+    );
+  }
+
+  if (location.pathname === '/login') {
+    return <Navigate to={`/${CrmPage.Contacts}`} replace />;
+  }
 
   const page = location.pathname.startsWith(`/${CrmPage.Companies}`)
     ? CrmPage.Companies
@@ -46,6 +110,12 @@ function CrmApp() {
       pageTitle={pageTitle}
       search={search}
       onSearchChange={setSearch}
+      username={username ?? ''}
+      onLogout={() => {
+        clearStoredAuth();
+        dispatch(logout());
+        dispatch(closeModal());
+      }}
     >
       {apiErrors.length > 0 && (
         <div className="api-error" role="alert">

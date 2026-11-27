@@ -12,6 +12,8 @@ interface AppLayoutProps {
   pageTitle: string;
   search: string;
   onSearchChange: (value: string) => void;
+  username: string;
+  onLogout: () => void;
   children: React.ReactNode;
 }
 
@@ -21,6 +23,8 @@ function AppLayout({
   pageTitle,
   search,
   onSearchChange,
+  username,
+  onLogout,
   children,
 }: AppLayoutProps) {
   const contactCount = useContactData().length;
@@ -69,8 +73,8 @@ function AppLayout({
           <button type="button">Explore plans <Icon name="arrow" size={14} /></button>
         </div>
         <button className="profile" type="button">
-          <Avatar name="Alex Morgan" size="medium" />
-          <span className="profile__copy"><strong>Alex Morgan</strong><small>alex@studionorth.co</small></span>
+          <Avatar name={username} size="medium" />
+          <span className="profile__copy"><strong>{username}</strong><small>Signed in</small></span>
           <Icon name="more" size={20} />
         </button>
       </aside>
@@ -92,7 +96,10 @@ function AppLayout({
             <button className="icon-button notification-button" type="button" aria-label="Notifications">
               <span className="notification-dot" /><span className="bell-glyph">♧</span>
             </button>
-            <Avatar name="Alex Morgan" size="small" />
+            <span className="auth-username">{username}</span>
+            <button className="button button--secondary button--compact" type="button" onClick={onLogout}>
+              Sign out
+            </button>
           </div>
         </header>
         <div className="page-content">{children}</div>

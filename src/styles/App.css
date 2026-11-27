@@ -26,6 +26,122 @@ button {
   color: #9c2c2c;
 }
 
+.auth-page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(ellipse at 15% 10%, #e8e5ff 0, transparent 38%),
+    radial-gradient(ellipse at 90% 90%, #e8f4f3 0, transparent 36%),
+    #f8f9fc;
+}
+
+.auth-card {
+  width: min(100%, 430px);
+  padding: 34px;
+  border: 1px solid #eeeff3;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 20px 65px #29244414;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+
+.auth-heading {
+  margin-bottom: 24px;
+}
+
+.auth-heading .eyebrow {
+  margin-bottom: 12px;
+}
+
+.auth-heading h1 {
+  margin: 0;
+  color: #292838;
+  font-size: 26px;
+  font-weight: 680;
+  letter-spacing: -0.7px;
+}
+
+.auth-heading p,
+.auth-register-prompt {
+  margin: 8px 0 0;
+  color: #858493;
+  font-size: 12px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+}
+
+.auth-form .form-field {
+  font-size: 12px;
+}
+
+.auth-form .form-field input {
+  height: 42px;
+  font-size: 13px;
+}
+
+.auth-submit {
+  width: 100%;
+  justify-content: center;
+  min-height: 42px;
+  margin-top: 4px;
+}
+
+.auth-submit:disabled,
+.auth-form button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.auth-register-prompt {
+  margin-top: 22px;
+  text-align: center;
+}
+
+.auth-link {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #6558cf;
+  font-size: inherit;
+  font-weight: 650;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+
+.auth-message {
+  margin-bottom: 16px;
+}
+
+.auth-success {
+  padding: 12px 16px;
+  border: 1px solid #b5dfc8;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  background: #f0fbf4;
+  color: #247449;
+  font-size: 12px;
+}
+
+.auth-register h2 {
+  margin: 18px 0 5px;
+  color: #302f40;
+  font-size: 19px;
+  letter-spacing: -0.3px;
+}
+
 .sidebar {
   position: fixed;
   z-index: 3;
@@ -284,6 +400,11 @@ button {
 
 .topbar__actions {
   gap: 20px;
+}
+
+.auth-username {
+  color: #777685;
+  font-size: 11px;
 }
 
 .global-search {
@@ -1510,7 +1631,8 @@ button {
   }
 
   .global-search kbd,
-  .notification-button {
+  .notification-button,
+  .auth-username {
     display: none;
   }
 

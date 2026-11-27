@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Company } from '../../types/company';
 import { CompanyInput, crmApi } from '../../services/crmApi';
+import { logout } from '../auth/authSlice';
 
 type RequestStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 
@@ -96,7 +97,8 @@ const companySlice = createSlice({
           state.selectedCompanyId = null;
         }
         state.error = action.payload.errors.length ? action.payload.errors.join('; ') : null;
-      });
+      })
+      .addCase(logout, () => initialState);
   },
 });
 
