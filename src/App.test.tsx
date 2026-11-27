@@ -25,14 +25,15 @@ interface ApiContact {
 let companies: ApiCompany[];
 let contacts: ApiContact[];
 let failContactListRequest: boolean;
+let rejectProtectedRequests: boolean;
 let fetchSpy: jest.SpyInstance;
 
-function jsonResponse(result: unknown, status = 200): Response {
+function jsonResponse(result: unknown, status = 200, message = 'Backend unavailable'): Response {
   return {
     ok: status >= 200 && status < 300,
     status,
     json: async () => status >= 400
-      ? { success: false, errorCode: status, result: { message: 'Backend unavailable' } }
+      ? { success: false, errorCode: status, result: { message } }
       : { success: true, result },
   } as Response;
 }
@@ -41,6 +42,23 @@ function mockBackendFetch(url: string, init?: RequestInit): Promise<Response> {
   const path = new URL(url).pathname;
   const method = init?.method ?? 'GET';
   const body = init?.body ? JSON.parse(String(init.body)) : {};
+  const authorization = new Headers(init?.headers).get('Authorization');
+
+  if (path === '/auth/login' && method === 'POST') {
+    return Promise.resolve(body.username === 'taylor' && body.password === 'a-long-unique-password'
+      ? jsonResponse({ token: 'test-auth-token', tokenType: 'Bearer', expiresIn: 3600 })
+      : jsonResponse(null, 401, 'Invalid username or password'));
+  }
+  if (path === '/auth/register' && method === 'POST') {
+    return Promise.resolve(jsonResponse({ id: 'user-1', username: body.username, email: body.email }, 201));
+  }
+
+  if (
+    (path.startsWith('/companies') || path.startsWith('/contacts'))
+    && (rejectProtectedRequests || authorization !== 'Bearer test-auth-token')
+  ) {
+    return Promise.resolve(jsonResponse(null, 401, 'Unauthorized'));
+  }
 
   if (path === '/companies' && method === 'GET') return Promise.resolve(jsonResponse(companies));
   if (path === '/contacts' && method === 'GET') {
@@ -99,6 +117,18 @@ function renderApp() {
   );
 }
 
+async function signIn() {
+  fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'taylor' } });
+  fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'a-long-unique-password' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument());
+}
+
+async function renderAuthenticatedApp() {
+  renderApp();
+  await signIn();
+}
+
 beforeEach(() => {
   window.history.replaceState({}, '', '/');
   companies = [
@@ -108,6 +138,8 @@ beforeEach(() => {
     { id: 'contact-1', firstName: 'Olivia', lastName: 'Rhye', email: 'olivia@example.com', phone: '555-0100', companyId: 'company-1' },
   ];
   failContactListRequest = false;
+  rejectProtectedRequests = false;
+  window.sessionStorage.clear();
   fetchSpy = jest.spyOn(global, 'fetch').mockImplementation((input, init) => (
     mockBackendFetch(String(input), init)
   ));
@@ -117,9 +149,13 @@ afterEach(() => {
   fetchSpy.mockRestore();
 });
 
-test('loads backend records and navigates to companies', async () => {
+test('requires login and sends the auth token with protected requests', async () => {
   renderApp();
 
+  expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+  expect(window.location.pathname).toBe('/login');
+  expect(fetchSpy).not.toHaveBeenCalledWith('http://localhost:3001/contacts', expect.anything());
+  await signIn();
   expect(await screen.findByText('Olivia Rhye')).toBeInTheDocument();
   fireEvent.click(screen.getByRole('button', { name: /companies/i }));
 
@@ -127,10 +163,72 @@ test('loads backend records and navigates to companies', async () => {
   expect(window.location.pathname).toBe('/companies');
   expect(fetchSpy).toHaveBeenCalledWith('http://localhost:3001/contacts', expect.anything());
   expect(fetchSpy).toHaveBeenCalledWith('http://localhost:3001/companies', expect.anything());
+  const protectedRequest = fetchSpy.mock.calls.find(([url]) => url === 'http://localhost:3001/contacts');
+  expect(new Headers(protectedRequest?.[1]?.headers).get('Authorization')).toBe('Bearer test-auth-token');
+});
+
+test('shows the login screen when visiting /login directly', () => {
+  window.history.replaceState({}, '', '/login');
+  renderApp();
+
+  expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+  expect(window.location.pathname).toBe('/login');
+  expect(fetchSpy).not.toHaveBeenCalledWith('http://localhost:3001/contacts', expect.anything());
+});
+
+test('shows the credential error when login is rejected', async () => {
+  renderApp();
+  fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'taylor' } });
+  fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'wrong-password' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+
+  expect(await screen.findByRole('alert')).toHaveTextContent(
+    'Could not log in with the provided user credentials'
+  );
+  expect(window.location.pathname).toBe('/login');
+});
+
+test('registers an account and returns to the login form', async () => {
+  renderApp();
+  fireEvent.click(screen.getByRole('button', { name: 'Create an account' }));
+  fireEvent.change(screen.getAllByLabelText('Username')[1], { target: { value: 'taylor' } });
+  fireEvent.change(screen.getByLabelText('Email address'), { target: { value: 'taylor@example.com' } });
+  fireEvent.change(screen.getByLabelText('Password (12–72 characters)'), { target: { value: 'a-long-unique-password' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+
+  expect(await screen.findByRole('status')).toHaveTextContent('Account created');
+  expect(fetchSpy).toHaveBeenCalledWith('http://localhost:3001/auth/register', expect.objectContaining({
+    method: 'POST',
+    body: JSON.stringify({
+      username: 'taylor',
+      email: 'taylor@example.com',
+      password: 'a-long-unique-password',
+    }),
+  }));
+  expect(fetchSpy).not.toHaveBeenCalledWith('http://localhost:3001/contacts', expect.anything());
+});
+
+test('returns to login when a protected API request rejects the token', async () => {
+  rejectProtectedRequests = true;
+  renderApp();
+  await signIn();
+
+  expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+  expect(screen.queryByText('Olivia Rhye')).not.toBeInTheDocument();
+  expect(window.sessionStorage.getItem('crm-auth')).toBeNull();
+});
+
+test('signs out and clears the authenticated session', async () => {
+  await renderAuthenticatedApp();
+  fireEvent.click(await screen.findByRole('button', { name: 'Sign out' }));
+
+  expect(screen.getByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+  expect(window.sessionStorage.getItem('crm-auth')).toBeNull();
+  expect(screen.queryByText('Olivia Rhye')).not.toBeInTheDocument();
 });
 
 test('creates a contact using the backend contact contract', async () => {
-  renderApp();
+  await renderAuthenticatedApp();
   await screen.findByText('Olivia Rhye');
   fireEvent.click(screen.getAllByRole('button', { name: /add contact/i })[0]);
   fireEvent.change(screen.getByLabelText('First name'), { target: { value: 'Jamie' } });
@@ -155,6 +253,10 @@ test('creates a contact using the backend contact contract', async () => {
 test('creates a company using backend-supported fields', async () => {
   window.history.replaceState({}, '', '/companies');
   renderApp();
+  expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
+  expect(window.location.pathname).toBe('/login');
+  await signIn();
+  expect(window.location.pathname).toBe('/companies');
   await screen.findByText('Acme Inc.');
   fireEvent.click(screen.getAllByRole('button', { name: /add company/i })[0]);
   fireEvent.change(screen.getByLabelText('Company name'), { target: { value: 'Northwind' } });
@@ -176,7 +278,7 @@ test('creates a company using backend-supported fields', async () => {
 });
 
 test('updates a contact through PATCH and reflects the backend response', async () => {
-  renderApp();
+  await renderAuthenticatedApp();
   fireEvent.click(await screen.findByRole('button', { name: 'View details for Olivia Rhye' }));
   fireEvent.change(await screen.findByLabelText('First name'), { target: { value: 'Liv' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
@@ -191,7 +293,7 @@ test('updates a contact through PATCH and reflects the backend response', async 
 test('deletes a company and clears its contact associations from backend results', async () => {
   const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
   window.history.replaceState({}, '', '/companies');
-  renderApp();
+  await renderAuthenticatedApp();
   await screen.findByText('Acme Inc.');
   fireEvent.click(screen.getByRole('checkbox', { name: 'Select Acme Inc.' }));
   fireEvent.click(screen.getByRole('button', { name: 'Delete 1 selected companies' }));
@@ -206,7 +308,7 @@ test('deletes a company and clears its contact associations from backend results
 
 test('deletes a selected contact through the backend', async () => {
   const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(true);
-  renderApp();
+  await renderAuthenticatedApp();
   await screen.findByText('Olivia Rhye');
   fireEvent.click(screen.getByRole('checkbox', { name: 'Select Olivia Rhye' }));
   fireEvent.click(screen.getByRole('button', { name: 'Delete 1 selected contacts' }));
@@ -220,7 +322,7 @@ test('deletes a selected contact through the backend', async () => {
 
 test('shows backend request errors instead of falling back to local data', async () => {
   failContactListRequest = true;
-  renderApp();
+  await renderAuthenticatedApp();
 
   expect(await screen.findByRole('alert')).toHaveTextContent('Backend unavailable');
   expect(screen.queryByText('Olivia Rhye')).not.toBeInTheDocument();

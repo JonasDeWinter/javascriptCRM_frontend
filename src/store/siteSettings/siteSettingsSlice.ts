@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CrmPage } from '../../types/crm';
+import { logout } from '../auth/authSlice';
 
 export interface SiteSettingsState {
   isModalOpen: boolean;
@@ -24,6 +25,9 @@ const siteSettingsSlice = createSlice({
     setCurrentPage(state, action: PayloadAction<CrmPage>) {
       state.currentPage = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(logout, () => initialState);
   },
 });
 

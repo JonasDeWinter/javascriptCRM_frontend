@@ -16,6 +16,12 @@ phone, and address) and contact fields (first name, last name, email, phone,
 and company association). Request failures are shown in the app rather than
 replaced with local sample records.
 
+The CRM requires authentication before showing protected pages. Users can
+sign in through `/auth/login` or register through `/auth/register`; the
+one-hour bearer token is stored for the current browser tab and sent with all
+company and contact requests. Expired or rejected tokens return the user to
+the login screen.
+
 ## Available Scripts
 
 In the project directory, you can run:

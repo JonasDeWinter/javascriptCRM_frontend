@@ -1,20 +1,6 @@
 import { Company } from '../types/company';
 import { Contact } from '../types/contact';
-
-const API_BASE_URL = 'http://localhost:3001';
-
-interface ApiError {
-  success: false;
-  errorCode: number;
-  result: { message: string };
-}
-
-interface ApiSuccess<T> {
-  success: true;
-  result: T;
-}
-
-type ApiResponse<T> = ApiSuccess<T> | ApiError;
+import { apiRequest } from './apiClient';
 
 interface ApiCompany {
   id: string;
@@ -36,23 +22,6 @@ interface ApiContact {
 
 export type CompanyInput = Omit<Company, 'id'>;
 export type ContactInput = Omit<Contact, 'id'>;
-
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    headers: {
-      ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
-      ...init?.headers,
-    },
-  });
-  const body = await response.json() as ApiResponse<T>;
-
-  if (!response.ok || !body.success) {
-    throw new Error(body.success ? `Request failed (${response.status})` : body.result.message);
-  }
-
-  return body.result;
-}
 
 function mapCompany(company: ApiCompany): Company {
   return {
@@ -98,52 +67,52 @@ function toContactPayload(contact: Partial<ContactInput>): Partial<ContactInput>
 
 export const crmApi = {
   async getCompanies(): Promise<Company[]> {
-    const companies = await request<ApiCompany[]>('/companies');
+    const companies = await apiRequest<ApiCompany[]>('/companies', undefined, true);
     return companies.map(mapCompany);
   },
 
   async createCompany(input: CompanyInput): Promise<Company> {
-    return mapCompany(await request<ApiCompany>('/companies', {
+    return mapCompany(await apiRequest<ApiCompany>('/companies', {
       method: 'POST',
       body: JSON.stringify(toCompanyPayload(input)),
-    }));
+    }, true));
   },
 
   async updateCompany(id: string, changes: Partial<CompanyInput>): Promise<Company> {
-    return mapCompany(await request<ApiCompany>(`/companies/${encodeURIComponent(id)}`, {
+    return mapCompany(await apiRequest<ApiCompany>(`/companies/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       body: JSON.stringify(toCompanyPayload(changes)),
-    }));
+    }, true));
   },
 
   async deleteCompany(id: string): Promise<void> {
-    await request<{ id: string; deleted: boolean }>(`/companies/${encodeURIComponent(id)}`, {
+    await apiRequest<{ id: string; deleted: boolean }>(`/companies/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-    });
+    }, true);
   },
 
   async getContacts(): Promise<Contact[]> {
-    const contacts = await request<ApiContact[]>('/contacts');
+    const contacts = await apiRequest<ApiContact[]>('/contacts', undefined, true);
     return contacts.map(mapContact);
   },
 
   async createContact(input: ContactInput): Promise<Contact> {
-    return mapContact(await request<ApiContact>('/contacts', {
+    return mapContact(await apiRequest<ApiContact>('/contacts', {
       method: 'POST',
       body: JSON.stringify(toContactPayload(input)),
-    }));
+    }, true));
   },
 
   async updateContact(id: string, changes: Partial<ContactInput>): Promise<Contact> {
-    return mapContact(await request<ApiContact>(`/contacts/${encodeURIComponent(id)}`, {
+    return mapContact(await apiRequest<ApiContact>(`/contacts/${encodeURIComponent(id)}`, {
       method: 'PATCH',
       body: JSON.stringify(toContactPayload(changes)),
-    }));
+    }, true));
   },
 
   async deleteContact(id: string): Promise<void> {
-    await request<{ id: string; deleted: boolean }>(`/contacts/${encodeURIComponent(id)}`, {
+    await apiRequest<{ id: string; deleted: boolean }>(`/contacts/${encodeURIComponent(id)}`, {
       method: 'DELETE',
-    });
+    }, true);
   },
 };

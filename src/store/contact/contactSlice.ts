@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Contact } from '../../types/contact';
 import { ContactInput, crmApi } from '../../services/crmApi';
+import { logout } from '../auth/authSlice';
 import { deleteCompanies } from '../company/companySlice';
 
 type RequestStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -105,7 +106,8 @@ const contactSlice = createSlice({
             contact.companyId = null;
           }
         });
-      });
+      })
+      .addCase(logout, () => initialState);
   },
 });
 
